@@ -20,7 +20,7 @@ resource "aws_security_group" "allow_user_to_connect" {
       from_port   = ingress.value.from_port
       to_port     = ingress.value.to_port
       protocol    = "tcp"
-      cidr_blocks = ["167.103.7.35/32"]
+      cidr_blocks = ["136.226.245.9/32"]
 
     }
   }
@@ -49,9 +49,11 @@ resource "aws_instance" "testinstance" {
 #!/bin/bash
 sudo su -
 apt update -y
+apt-get install unzip
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
 sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+
 
 sudo apt-get install docker.io -y
 sleep 10
@@ -102,9 +104,13 @@ chmod 700 get_helm.sh
 ./get_helm.sh
 helm repo add stable https://charts.helm.sh/stable
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-kubectl create namespace prometheus
 helm install stable prometheus-community/kube-prometheus-stack -n prometheus
 sleep 20
+
+sudo usermod -aG docker jenkins
+sudo systemctl restart jenkins
+usermod -aG docker ubuntu && newgrp docker
+
 
 EOF
 
